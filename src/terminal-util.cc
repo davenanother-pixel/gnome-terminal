@@ -53,6 +53,14 @@
 
 #define GNOME_TERMINAL_ISSUE_URL "https://gitlab.gnome.org/GNOME/gnome-terminal/issues"
 
+static void
+response_cb(GtkWindow* window,
+            int response,
+            void* user_data)
+{
+  gtk_window_destroy(window);
+}
+
 /**
  * terminal_util_show_error_dialog:
  * @transient_parent: parent of the future dialog window;
@@ -94,11 +102,18 @@ terminal_util_show_error_dialog (GtkWindow *transient_parent,
                                        message ? "%s" : nullptr,
 				       message);
 
+      if (!transient_parent) {
+        gs_unref_object auto window_group = gtk_window_group_new ();
+        gtk_window_group_add_window (window_group, GTK_WINDOW(dialog));
+      }
+
+      gtk_window_set_modal(GTK_WINDOW(dialog), true);
+
       if (error != nullptr)
         gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
                                                   "%s", error->message);
 
-      g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (gtk_window_destroy), nullptr);
+      g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (response_cb), nullptr);
 
       if (weak_ptr != nullptr)
         {
@@ -138,7 +153,8 @@ open_url (GtkWindow *parent,
 }
 
 void
-terminal_util_show_help (const char *topic)
+terminal_util_show_help (GtkWindow *transient_parent,
+                         const char *topic)
 {
   gs_free_error GError *error = nullptr;
   gs_free char *uri;
@@ -151,7 +167,7 @@ terminal_util_show_help (const char *topic)
 
   if (!open_url (nullptr, uri, GDK_CURRENT_TIME, &error))
     {
-      terminal_util_show_error_dialog (nullptr, nullptr, error,
+      terminal_util_show_error_dialog (transient_parent, nullptr, error,
                                        _("There was an error displaying help"));
     }
 }
