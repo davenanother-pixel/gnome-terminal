@@ -178,6 +178,27 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
+/* ASCII Art Banner */
+static void
+terminal_app_print_banner(void)
+{
+  const char* banner = 
+    "\n"
+    " \033[1;32m██████╗ ███╗   ██╗ ██████╗ ███╗   ███╗███████╗\033[0m\n"
+    " \033[1;32m██╔════╝ ████╗  ██║██╔════╝ ████╗ ████║██╔════╝\033[0m\n"
+    " \033[1;32m██║  ███╗██╔██╗ ██║██║  ███╗██╔████╔██║█████╗  \033[0m\n"
+    " \033[1;32m██║   ██║██║╚██╗██║██║   ██║██║╚██╔╝██║██╔══╝  \033[0m\n"
+    " \033[1;32m╚██████╔╝██║ ╚████║╚██████╔╝██║ ╚═╝ ██║███████╗\033[0m\n"
+    " \033[1;32m ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝\033[0m\n"
+    " \033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n"
+    " \033[1;33mGNOME Terminal\033[0m - The ultimate terminal emulator for GNOME\n"
+    " \033[1;37mVersion:\033[0m %s\n"
+    " \033[1;37mWebsite:\033[0m https://wiki.gnome.org/Apps/Terminal\n"
+    " \033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n\n";
+
+  g_print(banner, VERSION);
+}
+
 /* Debugging helper */
 
 static void
@@ -751,6 +772,9 @@ terminal_app_startup (GApplication *application)
   g_application_set_resource_base_path (application, TERMINAL_RESOURCES_PATH_PREFIX);
 
   G_APPLICATION_CLASS (terminal_app_parent_class)->startup (application);
+
+  /* Print the ASCII art banner on startup */
+  terminal_app_print_banner();
 
 #ifdef GDK_WINDOWING_X11
   auto const display = gdk_display_get_default ();
